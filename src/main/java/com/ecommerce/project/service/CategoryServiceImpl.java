@@ -37,30 +37,36 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void createCategory(Category category) {
-        Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
-        if (savedCategory != null) {
+    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
+        Category category = categoryMapper.toEntity(categoryDTO);
+        Category categoryFromDb = categoryRepository.findByCategoryName(category.getCategoryName());
+
+        if (categoryFromDb != null) {
             throw new APIException("Category with the name "  + category.getCategoryName() + " already exists !!!");
         }
-        categoryRepository.save(category);
+
+        Category savedCategory = categoryRepository.save(category);
+        return categoryMapper.toDTO(savedCategory);
     }
 
     @Override
-    public String deleteCategory(Long categoryId) {
+    public CategoryDTO updateCategory(CategoryDTO categoryDTO, Long categoryId) {
+        categoryRepository.findById(categoryId)
+        .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
+        Category category = categoryMapper.toEntity(categoryDTO);
+
+        category.setCategoryId(categoryId);
+        Category updatedCategory = categoryRepository.save(category);
+        return categoryMapper.toDTO(updatedCategory);
+    }
+
+    @Override
+    public CategoryDTO deleteCategory(Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         categoryRepository.delete(category);
-        return "Category with id " + categoryId + " deleted successfully";
-    }
-
-    @Override
-    public String updateCategory(Category category, Long categoryId) {
-        categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
-
-        category.setCategoryId(categoryId);
-        categoryRepository.save(category);
-        return "Category with id " + categoryId + " updated successfully";
+        return categoryMapper.toDTO(category);
     }
 }

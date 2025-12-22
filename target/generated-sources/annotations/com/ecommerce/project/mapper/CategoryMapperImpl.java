@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-22T14:46:50-0300",
+    date = "2025-12-22T15:34:38-0300",
     comments = "version: 1.6.3, compiler: javac, environment: Java 17.0.17 (Microsoft)"
 )
 @Component
@@ -27,6 +27,20 @@ public class CategoryMapperImpl implements CategoryMapper {
         categoryDTO.setCategoryName( category.getCategoryName() );
 
         return categoryDTO;
+    }
+
+    @Override
+    public Category toEntity(CategoryDTO categoryDTO) {
+        if ( categoryDTO == null ) {
+            return null;
+        }
+
+        Category category = new Category();
+
+        category.setCategoryId( categoryDTO.getCategoryId() );
+        category.setCategoryName( categoryDTO.getCategoryName() );
+
+        return category;
     }
 
     @Override
