@@ -8,5 +8,6 @@ import org.springframework.stereotype.Service;
 public interface ProductService {
 
     ProductResponse getAllProducts();
+    ProductResponse searchByCategory(Long categoryId);
     ProductDTO addProduct(Long categoryId, Product product);
 }

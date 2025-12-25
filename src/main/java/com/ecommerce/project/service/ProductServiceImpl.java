@@ -34,6 +34,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductResponse searchByCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
+        List<Product> products = productRepository.findByCategoryOrderByPriceAsc(category);
+        List<ProductDTO> productsDTO = productMapper.toDTOs(products);
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(productsDTO);
+        return productResponse;
+    }
+
+    @Override
     public ProductDTO addProduct(Long categoryId, Product product) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
