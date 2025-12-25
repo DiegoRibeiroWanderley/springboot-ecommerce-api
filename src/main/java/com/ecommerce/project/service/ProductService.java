@@ -11,4 +11,5 @@ public interface ProductService {
     ProductResponse searchByCategory(Long categoryId);
     ProductResponse searchByKeyword(String keyword);
     ProductDTO addProduct(Long categoryId, Product product);
+    ProductDTO updateProduct(Product product, Long productId);
 }
