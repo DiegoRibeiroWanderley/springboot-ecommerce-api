@@ -10,8 +10,14 @@ import com.ecommerce.project.repositories.CategoryRepository;
 import com.ecommerce.project.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -87,6 +93,37 @@ public class ProductServiceImpl implements ProductService {
 
         Product updatedProduct = productRepository.save(productFromDB);
         return productMapper.toDTO(updatedProduct);
+    }
+
+    @Override
+    public ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException {
+        Product productFromDB = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+        String path = "images/";
+        String fileName = uploadImage(path, image);
+
+        productFromDB.setImage(fileName);
+        Product updatedProduct = productRepository.save(productFromDB);
+
+        return productMapper.toDTO(updatedProduct);
+    }
+
+    private String uploadImage(String path, MultipartFile file) throws IOException {
+        String originalFileName = file.getOriginalFilename();
+
+        String randomId = UUID.randomUUID().toString();
+        String fileName = randomId.concat(originalFileName.substring(originalFileName.lastIndexOf(".")));
+        String filePath = path + File.separator + fileName;
+
+        File folder = new File(path);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+
+        Files.copy(file.getInputStream(), Paths.get(filePath));
+
+        return fileName;
     }
 
     @Override
