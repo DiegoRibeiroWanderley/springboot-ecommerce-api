@@ -23,13 +23,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
-@Controller
+@RestController
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -127,8 +129,9 @@ public class AuthController {
 
         UserInfoResponse loginResponse = new UserInfoResponse(
                 userDetails.getId(),
+                jwtToken,
                 userDetails.getUsername(),
-                jwtToken, roles);
+                roles);
         return ResponseEntity.ok(loginResponse);
     }
 }

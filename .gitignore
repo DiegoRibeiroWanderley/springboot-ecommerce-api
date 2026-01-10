@@ -23,7 +23,8 @@
 hs_err_pid*
 replay_pid*
 
-# pastas
+# folders
 /.idea
 /.mvn
 /images
+/target
