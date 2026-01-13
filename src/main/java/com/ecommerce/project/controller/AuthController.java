@@ -145,19 +145,32 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/signout")
+    public ResponseEntity<?> signoutUser() {
+        ResponseCookie cookie = jwtUtils.generateCleanJwtCookies();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new MessageResponse("Successfully signed out!"));
+    }
+
     @GetMapping("/user")
     public ResponseEntity<?> currentUser(Authentication authentication) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        if (authentication != null) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
 
-        UserInfoResponse loginResponse = new UserInfoResponse(
-                userDetails.getId(),
-                userDetails.getUsername(),
-                roles);
+            UserInfoResponse loginResponse = new UserInfoResponse(
+                    userDetails.getId(),
+                    userDetails.getUsername(),
+                    roles);
 
-        return ResponseEntity.ok().body(loginResponse);
+            return ResponseEntity.ok().body(loginResponse);
+        } else {
+            return null;
+        }
     }
 }
