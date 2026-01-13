@@ -25,10 +25,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -137,5 +134,30 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(loginResponse);
+    }
+
+    @GetMapping("/username")
+    public String currentUsername(Authentication authentication) {
+        if (authentication != null) {
+            return authentication.getName();
+        } else {
+            return null;
+        }
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> currentUser(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        UserInfoResponse loginResponse = new UserInfoResponse(
+                userDetails.getId(),
+                userDetails.getUsername(),
+                roles);
+
+        return ResponseEntity.ok().body(loginResponse);
     }
 }
