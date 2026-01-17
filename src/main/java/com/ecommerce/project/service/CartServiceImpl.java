@@ -33,8 +33,8 @@ public class CartServiceImpl implements CartService {
     private final AuthUtil authUtil;
     private final ProductMapper productMapper;
 
-    @Override
     @Transactional
+    @Override
     public CartDTO addProductToCart(Long productId, Integer quantity) {
 
         Cart cart = createCart();
@@ -84,8 +84,8 @@ public class CartServiceImpl implements CartService {
         return cartDTO;
     }
 
-    @Override
     @Transactional
+    @Override
     public List<CartDTO> getAllCarts() {
         List<Cart> carts = cartRepository.findAll();
 
@@ -106,8 +106,8 @@ public class CartServiceImpl implements CartService {
         return cartDTOS;
     }
 
-    @Override
     @Transactional
+    @Override
     public CartDTO getCart(String email, Long cartId) {
         Cart cart = cartRepository.findCartByEmailAndCart(email, cartId);
 
@@ -122,6 +122,59 @@ public class CartServiceImpl implements CartService {
                 .toList();
         cartDTO.setProducts(productDTOS);
 
+        return cartDTO;
+    }
+
+    @Transactional
+    @Override
+    public CartDTO updateProductQuantityInCart(Long productId, Integer quantity) {
+        String emailId = authUtil.loggedInEmail();
+        Cart userCart = cartRepository.findCartByEmail(emailId);
+        Long cartId = userCart.getCartId();
+
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "cartId", userCart.getCartId()));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+        if (product.getQuantity() == 0) {
+            throw new APIException("Product " + product.getProductName() + " not available");
+        }
+
+        if (product.getQuantity() < quantity) {
+            throw new APIException("Please, make and order of the "
+                    + product.getProductName() + " less than or equal to " + product.getQuantity());
+        }
+
+        CartItem cartItem = cartItemRepository.findCartItemByProductIdAndCartId(cartId, productId);
+
+        if (cartItem == null) {
+            throw new APIException("Product " + product.getProductName() + " not available");
+        }
+
+        cartItem.setProductPrice(product.getSpecialPrice());
+        cartItem.setQuantity(cartItem.getQuantity() + quantity);
+        cartItem.setDiscount(product.getDiscount());
+        cart.setTotalPrice(cart.getTotalPrice() + (cartItem.getProductPrice() * quantity));
+
+        cartRepository.save(cart);
+        CartItem updatedCartItem = cartItemRepository.save(cartItem);
+
+        if (updatedCartItem.getQuantity() == 0) {
+            cartItemRepository.deleteById(updatedCartItem.getCartItemId());
+        }
+
+        CartDTO cartDTO = cartMapper.toDTO(cart);
+        List<CartItem> cartItems = cart.getCartItems();
+        Stream<ProductDTO> productDTOS = cartItems.stream()
+                .map(item -> {
+                    ProductDTO map = productMapper.toDTO(item.getProduct());
+                    map.setQuantity(item.getQuantity());
+                    return map;
+                });
+
+        cartDTO.setProducts(productDTOS.toList());
         return cartDTO;
     }
 
