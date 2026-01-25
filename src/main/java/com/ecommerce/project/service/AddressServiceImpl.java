@@ -70,7 +70,7 @@ public class AddressServiceImpl implements AddressService {
 
         user.getAddresses().remove(address);
         addressRepository.deleteById(addressId);
-        
+
         return "Address with id: " + addressId + " has been deleted";
     }
 }

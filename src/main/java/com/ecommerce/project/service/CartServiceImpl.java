@@ -73,14 +73,14 @@ public class CartServiceImpl implements CartService {
         CartDTO cartDTO = cartMapper.toDTO(cart);
 
         List<CartItem> cartItems = cart.getCartItems();
-        Stream<ProductDTO> productStream = cartItems.stream().map(item -> {
+        List<ProductDTO> productStream = cartItems.stream().map(item -> {
             ProductDTO map = productMapper.toDTO(item.getProduct());
             map.setQuantity(item.getQuantity());
 
             return map;
-        });
+        }).toList();
 
-        cartDTO.setProducts(productStream.toList());
+        cartDTO.setProducts(productStream);
         return cartDTO;
     }
 
@@ -97,8 +97,11 @@ public class CartServiceImpl implements CartService {
                 .map(cart -> {
                     CartDTO cartDTO = cartMapper.toDTO(cart);
                     List<ProductDTO> productDTOS = cart.getCartItems().stream()
-                            .map(p -> productMapper.toDTO(p.getProduct()))
-                            .toList();
+                            .map(cartItem -> {
+                                ProductDTO productDTO = productMapper.toDTO(cartItem.getProduct());
+                                productDTO.setQuantity(cartItem.getQuantity());
+                                return productDTO;
+                            }).toList();
                     cartDTO.setProducts(productDTOS);
                     return cartDTO;
                 }).toList();
@@ -116,10 +119,12 @@ public class CartServiceImpl implements CartService {
         }
 
         CartDTO cartDTO = cartMapper.toDTO(cart);
-        cart.getCartItems().forEach(cartItem -> cartItem.getProduct().setQuantity(cartItem.getQuantity()));
         List<ProductDTO> productDTOS = cart.getCartItems().stream()
-                .map(item -> productMapper.toDTO(item.getProduct()))
-                .toList();
+                .map(item -> {
+                    ProductDTO productDTO = productMapper.toDTO(item.getProduct());
+                    productDTO.setQuantity(item.getQuantity());
+                    return productDTO;
+                }).toList();
         cartDTO.setProducts(productDTOS);
 
         return cartDTO;
