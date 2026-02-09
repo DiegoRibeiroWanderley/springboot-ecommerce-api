@@ -29,4 +29,6 @@ replay_pid*
 /images
 /target
 
+# other files
 application-local.properties
+SwaggerConfig.java

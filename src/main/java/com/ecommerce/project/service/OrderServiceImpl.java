@@ -69,6 +69,8 @@ public class OrderServiceImpl implements OrderService {
         }
 
         List<OrderItem> orderItems = new ArrayList<>();
+        List<Product> productsToUpdate = new ArrayList<>();
+
         for (CartItem cartItem : cartItems) {
             OrderItem orderItem = new OrderItem();
 
@@ -78,16 +80,14 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setOrderedProductPrice(cartItem.getProductPrice());
             orderItem.setOrder(order);
             orderItems.add(orderItem);
+
+            int quantity = cartItem.getQuantity();
+            Product product = cartItem.getProduct();
+            product.setQuantity(product.getQuantity() - quantity);
         }
 
         orderItemRepository.saveAll(orderItems);
-
-        cart.getCartItems().forEach(item -> {
-            int quantity = item.getQuantity();
-            Product product = item.getProduct();
-            product.setQuantity(product.getQuantity() - quantity);
-            productRepository.save(product);
-        });
+        productRepository.saveAll(productsToUpdate);
 
         new ArrayList<>(cart.getCartItems()).forEach(item -> {
             cartService.deleteProductFromCart(cart.getCartId(), item.getProduct().getProductId());
