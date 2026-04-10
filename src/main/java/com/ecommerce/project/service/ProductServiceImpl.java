@@ -137,35 +137,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse searchByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-        Page<Product> productPage = productRepository.findByProductNameLikeIgnoreCase('%' + keyword + '%', pageable);
-
-        List<Product> products = productPage.getContent();
-
-        if (products.isEmpty()) {
-            throw new APIException("No products with keyword: " + keyword);
-        }
-
-        List<ProductDTO> productsDTO = productMapper.toDTOs(products);
-
-        ProductResponse productResponse = new ProductResponse();
-        productResponse.setContent(productsDTO);
-        productResponse.setPageNumber(productPage.getNumber());
-        productResponse.setPageSize(productPage.getSize());
-        productResponse.setTotalElements(productPage.getTotalElements());
-        productResponse.setTotalPages(productPage.getTotalPages());
-        productResponse.setLastPage(productPage.isLast());
-
-        return productResponse;
-    }
-
-    @Override
     public ProductDTO addProduct(Long categoryId, ProductDTO productDTO) {
 
         Product product = productMapper.toEntity(productDTO);

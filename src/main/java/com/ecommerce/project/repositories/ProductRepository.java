@@ -13,6 +13,5 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     Page<Product> findByCategoryOrderByPriceAsc(Category category, Pageable pageable);
-    Page<Product> findByProductNameLikeIgnoreCase(String keyword, Pageable pageable);
     Product findByProductName(String productName);
 }
