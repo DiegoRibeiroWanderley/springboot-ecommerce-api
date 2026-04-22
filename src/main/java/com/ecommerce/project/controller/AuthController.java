@@ -1,5 +1,7 @@
 package com.ecommerce.project.controller;
 
+import com.ecommerce.project.abacatePay.request.CustomerRequest;
+import com.ecommerce.project.abacatePay.response.CustomerResponse;
 import com.ecommerce.project.exceptions.ResourceNotFoundException;
 import com.ecommerce.project.model.AppRole;
 import com.ecommerce.project.model.Role;
@@ -37,6 +39,8 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
+    private final AbacatePayController abacatePayController;
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
@@ -55,6 +59,12 @@ public class AuthController {
         User user = User.builder()
                 .username(signupRequest.getUsername())
                 .email(signupRequest.getEmail())
+                .cellphone(signupRequest.getCellphone())
+                .taxId(passwordEncoder.encode(signupRequest.getTaxId()))
+                .abacatePayId(abacatePayController.createCustomer(new CustomerRequest(signupRequest.getUsername(),
+                        signupRequest.getCellphone(),
+                        signupRequest.getEmail(),
+                        signupRequest.getTaxId())))
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
                 .build();
 
