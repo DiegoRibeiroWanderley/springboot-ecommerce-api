@@ -37,6 +37,14 @@ public class User {
     private String email;
 
     @NotBlank(message = "Password must not be blank")
+    private String cellphone;
+
+    @NotBlank(message = "Tax key must not be blank")
+    private String taxId;
+
+    private String abacatePayId;
+
+    @NotBlank(message = "Password must not be blank")
     @Size(max = 120)
     @Column(name = "password")
     private String password;
